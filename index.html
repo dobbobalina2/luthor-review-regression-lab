@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Review Regression Lab · concept demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17243a;
+      --muted: #718097;
+      --line: #e6ebf1;
+      --paper: #ffffff;
+      --canvas: #f5f7fa;
+      --navy: #17243a;
+      --blue: #4166e8;
+      --blue-soft: #edf1ff;
+      --mint: #13846f;
+      --mint-soft: #eaf7f3;
+      --amber: #aa6a16;
+      --amber-soft: #fff4e6;
+      --red: #b34848;
+      --red-soft: #fff0ef;
+      --shadow: 0 8px 28px rgba(23, 36, 58, .055);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--canvas); font-size: 14px; }
+    button, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar { height: 66px; display: flex; align-items: center; justify-content: space-between; padding: 0 34px; background: #fff; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 720; letter-spacing: -.025em; font-size: 16px; }
+    .brand-mark { width: 31px; height: 31px; border-radius: 9px; display: grid; place-items: center; background: var(--navy); color: #fff; font-size: 13px; letter-spacing: -.05em; }
+    .brand small { color: #9aa5b4; font-weight: 550; font-size: 12px; letter-spacing: 0; margin-left: 5px; }
+    .top-right { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 12px; }
+    .status-dot { display: inline-block; height: 7px; width: 7px; border-radius: 100%; background: #55ae90; margin-right: 7px; }
+    .avatar { width: 31px; height: 31px; border: 1px solid var(--line); background: #f1f4fa; color: #54627a; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+    .page { max-width: 1440px; margin: 0 auto; padding: 31px 38px 52px; }
+    .crumb { color: #8591a3; font-size: 12px; margin-bottom: 20px; }
+    .crumb span { color: #bbc3ce; padding: 0 8px; }
+    .heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+    .eyebrow { color: var(--blue); font-size: 11px; letter-spacing: .085em; text-transform: uppercase; font-weight: 760; margin-bottom: 9px; }
+    h1 { margin: 0; font-size: clamp(27px, 3vw, 34px); letter-spacing: -.045em; line-height: 1.1; font-weight: 690; }
+    .subtitle { color: var(--muted); margin: 9px 0 0; line-height: 1.5; }
+    .actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+    .select-wrap { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; height: 39px; display: flex; align-items: center; color: #8995a6; font-size: 12px; gap: 8px; }
+    select { border: 0; color: var(--ink); background: transparent; outline: none; font-size: 12px; }
+    .btn { border: 1px solid #dce3ec; border-radius: 8px; height: 39px; padding: 0 14px; background: #fff; color: var(--ink); font-weight: 650; font-size: 12px; transition: .15s ease; }
+    .btn:hover { border-color: #aebbd0; transform: translateY(-1px); }
+    .btn-primary { border-color: var(--blue); color: #fff; background: var(--blue); box-shadow: 0 3px 8px rgba(65,102,232,.2); }
+    .btn-primary:hover { background: #3156d5; border-color: #3156d5; }
+    .btn svg { vertical-align: -3px; margin-right: 6px; }
+    .notice { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #66748a; background: #f0f3f8; border: 1px solid #e8edf4; border-radius: 9px; font-size: 12px; margin-bottom: 19px; }
+    .notice-icon { width: 22px; height: 22px; display: grid; place-items: center; flex: 0 0 22px; color: #667a9b; background: #e2e8f2; border-radius: 50%; font-size: 12px; font-weight: 800; }
+    .notice strong { color: #3c4a61; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+    .metric { background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); border-radius: 11px; padding: 17px 18px 15px; min-height: 123px; }
+    .metric-top { color: #758197; display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 550; }
+    .metric-icon { width: 26px; height: 26px; display: grid; place-items: center; color: #7887a0; background: #f3f5f9; border-radius: 7px; }
+    .metric-value { display: flex; align-items: baseline; gap: 8px; margin-top: 14px; }
+    .metric-value strong { font-size: 28px; letter-spacing: -.045em; font-weight: 680; }
+    .delta { font-size: 11px; font-weight: 680; color: var(--mint); }
+    .delta.warn { color: var(--amber); }
+    .metric-foot { color: #9aa5b4; font-size: 11px; margin-top: 3px; }
+    .content-grid { display: grid; grid-template-columns: minmax(0, 1.72fr) minmax(310px, .88fr); gap: 16px; align-items: start; }
+    .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 11px; box-shadow: var(--shadow); overflow: hidden; }
+    .panel-head { padding: 17px 19px 14px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .panel-title { font-size: 14px; font-weight: 700; letter-spacing: -.015em; }
+    .panel-subtitle { margin-top: 4px; color: #8a96a8; font-size: 11px; }
+    .small-select { border: 1px solid var(--line); background: #fff; color: #5a6880; font-size: 11px; height: 30px; border-radius: 7px; padding: 0 9px; }
+    .comparison { margin: 0 19px 17px; border: 1px solid var(--line); border-radius: 9px; padding: 14px 15px; }
+    .comparison-head { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 15px; }
+    .legend { display: flex; align-items: center; gap: 17px; color: #778397; font-size: 10px; }
+    .legend-item { display: flex; gap: 6px; align-items: center; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 2px; background: #9eacc0; }
+    .legend-dot.candidate { background: var(--blue); }
+    .chart-row { display: grid; grid-template-columns: 119px 1fr 82px; gap: 12px; align-items: center; margin: 12px 0; }
+    .chart-label { font-size: 11px; color: #647188; }
+    .bars { display: grid; gap: 5px; }
+    .bar-line { height: 8px; background: #f0f2f6; border-radius: 7px; overflow: hidden; }
+    .bar { height: 100%; border-radius: inherit; background: #a7b2c3; transition: width .35s ease; }
+    .bar.candidate { background: var(--blue); }
+    .chart-end { font-size: 10px; text-align: right; color: #909bad; }
+    .testset-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 19px; border-top: 1px solid var(--line); font-size: 11px; color: #758197; }
+    .testset-row strong { color: #42516a; font-weight: 650; }
+    .text-button { border: 0; color: var(--blue); background: transparent; font-weight: 650; font-size: 11px; padding: 4px 0 4px 8px; }
+    .cases-panel { margin-top: 16px; }
+    .case-tools { display: flex; align-items: center; gap: 7px; padding: 0 19px 13px; border-bottom: 1px solid var(--line); }
+    .filter { border: 1px solid transparent; background: transparent; color: #7a879a; border-radius: 6px; height: 29px; font-size: 10px; padding: 0 9px; }
+    .filter.active { color: #34415a; background: #f0f3f8; border-color: #e8edf4; font-weight: 700; }
+    .case-count { margin-left: auto; font-size: 10px; color: #96a0ae; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 670px; }
+    th { text-align: left; color: #98a2b1; font-size: 9px; letter-spacing: .075em; text-transform: uppercase; font-weight: 700; padding: 10px 12px; white-space: nowrap; }
+    th:first-child, td:first-child { padding-left: 19px; }
+    td { border-top: 1px solid #eef1f5; padding: 10px 12px; vertical-align: middle; font-size: 11px; }
+    tbody tr { cursor: pointer; transition: background .12s ease; }
+    tbody tr:hover { background: #fafbfe; }
+    tbody tr.selected { background: #f5f7ff; }
+    .asset-name { color: #35435b; font-weight: 650; line-height: 1.35; max-width: 230px; }
+    .asset-id { color: #9aa4b2; font-size: 9px; margin-top: 3px; }
+    .channel { color: #78859a; font-size: 10px; }
+    .expected { color: #68768b; }
+    .pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 99px; padding: 4px 7px; font-size: 9px; font-weight: 680; white-space: nowrap; }
+    .pill.flag { color: #9b5a16; background: var(--amber-soft); }
+    .pill.pass { color: #24806f; background: var(--mint-soft); }
+    .pill.miss { color: #a84242; background: var(--red-soft); }
+    .pill.good { color: #355acb; background: var(--blue-soft); }
+    .dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .detail { position: sticky; top: 17px; }
+    .detail-top { padding: 17px 18px 15px; border-bottom: 1px solid var(--line); }
+    .detail-label { color: #8c98a9; font-size: 10px; letter-spacing: .065em; text-transform: uppercase; font-weight: 700; }
+    .detail-title { font-size: 15px; font-weight: 700; line-height: 1.3; margin: 8px 0 5px; letter-spacing: -.02em; }
+    .detail-meta { color: #8a96a8; font-size: 10px; }
+    .detail-body { padding: 15px 18px 17px; }
+    .detail-section { margin-bottom: 16px; }
+    .detail-section:last-child { margin-bottom: 0; }
+    .section-label { text-transform: uppercase; letter-spacing: .065em; color: #929eae; font-size: 9px; font-weight: 750; margin-bottom: 8px; }
+    .quote { color: #4d5b72; line-height: 1.5; font-size: 11px; background: #f7f8fa; border-left: 2px solid #cbd4e2; padding: 9px 10px; border-radius: 0 6px 6px 0; }
+    .decision-card { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .decision { padding: 10px; border: 1px solid var(--line); border-radius: 7px; }
+    .decision .version { color: #8a96a8; font-size: 9px; margin-bottom: 8px; }
+    .decision b { display: block; font-size: 10px; }
+    .decision small { display: block; color: #939eae; font-size: 9px; margin-top: 4px; }
+    .rationale { color: #68768a; font-size: 10px; line-height: 1.5; }
+    .human-note { margin-top: 12px; padding: 10px; border-radius: 7px; background: #f6f8fc; color: #718097; font-size: 10px; line-height: 1.45; }
+    .human-note strong { color: #53627a; }
+    .detail-foot { border-top: 1px solid var(--line); padding: 12px 18px; display: flex; justify-content: space-between; gap: 10px; color: #97a1af; font-size: 9px; }
+    .toast { position: fixed; right: 24px; bottom: 22px; background: var(--navy); color: white; padding: 12px 16px; border-radius: 8px; font-size: 12px; box-shadow: 0 8px 22px #14213a33; opacity: 0; transform: translateY(8px); transition: .2s ease; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .empty { text-align: center; padding: 30px; color: #8894a6; font-size: 11px; }
+    @media (max-width: 1050px) { .page { padding: 25px 22px 40px; } .content-grid { grid-template-columns: 1fr; } .detail { position: static; } .metric-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 650px) { .topbar { padding: 0 17px; } .top-right .status-text { display: none; } .page { padding: 21px 14px 34px; } .heading { display: block; } .actions { margin-top: 18px; flex-wrap: wrap; } .metric-grid { gap: 9px; } .metric { padding: 13px; min-height: 112px; } .metric-value strong { font-size: 24px; } .chart-row { grid-template-columns: 85px 1fr 26px; gap: 8px; } .comparison { margin-left: 12px; margin-right: 12px; } .panel-head { padding-left: 13px; padding-right: 13px; } .case-tools { padding-left: 12px; padding-right: 12px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">RL</div><div>Review Lab <small>concept demo</small></div></div>
+    <div class="top-right"><span class="status-text"><span class="status-dot"></span>Local demo · no external services</span><div class="avatar" aria-label="Sample workspace">SL</div></div>
+  </header>
+
+  <main class="page">
+    <div class="crumb">Workspace <span>/</span> Evaluation <span>/</span> Review comparison</div>
+    <section class="heading">
+      <div>
+        <div class="eyebrow">Evaluation overview</div>
+        <h1>Did the review update get better?</h1>
+        <p class="subtitle">Compare two review versions against the same known examples before changing the workflow.</p>
+      </div>
+      <div class="actions">
+        <label class="select-wrap">Test set <select id="testSet" aria-label="Test set"><option>Marketing review · 12 cases</option></select></label>
+        <button class="btn" id="exportBtn" title="Download the sample cases as JSON"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2v8m0 0 3-3m-3 3L5 7M3 12.5v1h10v-1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Export cases</button>
+        <button class="btn btn-primary" id="runBtn"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3.7v8.6c0 .7.8 1.1 1.4.7l7.1-4.3a.8.8 0 0 0 0-1.4L4.4 3C3.8 2.6 3 3 3 3.7Z" fill="currentColor"/></svg>Run comparison</button>
+      </div>
+    </section>
+
+    <div class="notice"><span class="notice-icon">i</span><div><strong>Prototype with synthetic data.</strong> Review outputs and scores below are illustrative examples, not Luthor model results or compliance advice.</div></div>
+
+    <section class="metric-grid" aria-label="Evaluation summary">
+      <article class="metric"><div class="metric-top">Examples in test set <span class="metric-icon">▦</span></div><div class="metric-value"><strong id="totalCases">12</strong></div><div class="metric-foot">7 expected flags · 5 expected passes</div></article>
+      <article class="metric"><div class="metric-top">Risk detection <span class="metric-icon">⌕</span></div><div class="metric-value"><strong id="recallValue">86%</strong><span class="delta" id="recallDelta">+14 pts</span></div><div class="metric-foot">Candidate compared with baseline</div></article>
+      <article class="metric"><div class="metric-top">False alarms <span class="metric-icon">◉</span></div><div class="metric-value"><strong id="falsePositiveValue">20%</strong><span class="delta" id="falsePositiveDelta">−20 pts</span></div><div class="metric-foot">Expected-pass cases flagged</div></article>
+      <article class="metric"><div class="metric-top">Overall agreement <span class="metric-icon">✓</span></div><div class="metric-value"><strong id="accuracyValue">83%</strong><span class="delta" id="accuracyDelta">+17 pts</span></div><div class="metric-foot">Match with the human-labeled answer</div></article>
+    </section>
+
+    <section class="content-grid">
+      <div>
+        <article class="panel">
+          <div class="panel-head"><div><div class="panel-title">Version comparison</div><div class="panel-subtitle">Same examples, two review configurations</div></div><span class="pill good"><span class="dot"></span>Candidate leads</span></div>
+          <div class="comparison">
+            <div class="comparison-head"><div class="legend"><span class="legend-item"><span class="legend-dot"></span>Baseline · v1</span><span class="legend-item"><span class="legend-dot candidate"></span>Candidate · v2</span></div><span style="font-size:10px;color:#9aa4b2">Share of cases</span></div>
+            <div class="chart-row"><div class="chart-label">Caught expected risks</div><div class="bars"><div class="bar-line"><div class="bar" style="width:71%"></div></div><div class="bar-line"><div class="bar candidate" style="width:86%"></div></div></div><div class="chart-end">5/7 → 6/7</div></div>
+            <div class="chart-row"><div class="chart-label">Passed safe examples</div><div class="bars"><div class="bar-line"><div class="bar" style="width:60%"></div></div><div class="bar-line"><div class="bar candidate" style="width:80%"></div></div></div><div class="chart-end">3/5 → 4/5</div></div>
+            <div class="chart-row"><div class="chart-label">Matched expected result</div><div class="bars"><div class="bar-line"><div class="bar" style="width:67%"></div></div><div class="bar-line"><div class="bar candidate" style="width:83%"></div></div></div><div class="chart-end">8/12 → 10/12</div></div>
+          </div>
+          <div class="testset-row"><span>Test set owner <strong>Compliance review team</strong></span><span>Last run just now · <button class="text-button" id="historyBtn">View run notes</button></span></div>
+        </article>
+
+        <article class="panel cases-panel">
+          <div class="panel-head"><div><div class="panel-title">Test cases</div><div class="panel-subtitle">Select a row to inspect the example and each version’s decision</div></div><button class="small-select" id="sortBtn">Sort: Most relevant</button></div>
+          <div class="case-tools" role="group" aria-label="Filter test cases">
+            <button class="filter active" data-filter="all">All examples <span>12</span></button>
+            <button class="filter" data-filter="different">Disagreements <span>6</span></button>
+            <button class="filter" data-filter="misses">Candidate misses <span>1</span></button>
+            <button class="filter" data-filter="false-alarms">Candidate false alarms <span>1</span></button>
+            <span class="case-count" id="caseCount">12 cases</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Example</th><th>Channel</th><th>Expected</th><th>Baseline v1</th><th>Candidate v2</th></tr></thead>
+              <tbody id="caseRows"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <aside class="panel detail" id="detailPanel" aria-live="polite"></aside>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const cases = [
+      {id:"C-001", title:"Performance claim without support", type:"Unsupported claim", channel:"Landing page", expected:"flag", baseline:"flag", candidate:"flag", excerpt:"Our strategy has delivered consistent double-digit returns for every client.", rationale:"A strong performance statement appears without supporting evidence or qualifying context in this synthetic example.", note:"Expected disposition: flag for substantiation and qualified review."},
+      {id:"C-002", title:"Return projection missing context", type:"Projection", channel:"Email", expected:"flag", baseline:"pass", candidate:"flag", excerpt:"Your portfolio could grow by 18% annually with our new strategy.", rationale:"The projection is presented without the context represented in the sample expected answer. The candidate flags it; the baseline lets it pass.", note:"This is the clearest improvement in this small sample: a risk the baseline missed is caught by the candidate."},
+      {id:"C-003", title:"Synthetic spokesperson without label", type:"Disclosure", channel:"Video ad", expected:"flag", baseline:"flag", candidate:"flag", excerpt:"A realistic generated spokesperson describes their experience, with no on-screen AI disclosure.", rationale:"The example tests whether review notices a synthetic-person disclosure issue in a video asset.", note:"Synthetic scenario for product demonstration. It is not a legal determination."},
+      {id:"C-004", title:"Disclosure disappears in a crop", type:"Disclosure", channel:"Social video", expected:"flag", baseline:"flag", candidate:"pass", excerpt:"The full-frame export includes a disclosure, but the mobile crop removes it from the visible area.", rationale:"The candidate misses a format change that makes the expected disclosure unavailable in the rendered placement.", note:"This is a candidate regression: compare the original and cropped versions before accepting the update."},
+      {id:"C-005", title:"Testimonial implies typical results", type:"Testimonial", channel:"Paid social", expected:"flag", baseline:"flag", candidate:"flag", excerpt:"“I doubled my savings in a month.” — Customer story, with no context about typical outcomes.", rationale:"The sample is designed to test whether a testimonial triggers a request for context or review.", note:"Expected disposition is a human review, not an automatic legal conclusion."},
+      {id:"C-006", title:"Guarantee phrasing in product copy", type:"Guarantees", channel:"Landing page", expected:"flag", baseline:"pass", candidate:"flag", excerpt:"Guaranteed to grow your business by 20% this quarter.", rationale:"The candidate flags an absolute outcome claim; the baseline misses it in this sample.", note:"A second risk caught by the candidate in the demonstration set."},
+      {id:"C-007", title:"Sensitive number in outbound SMS", type:"Privacy", channel:"SMS", expected:"flag", baseline:"flag", candidate:"flag", excerpt:"Your account ending 4821 is ready. Full sample number: 4111 1111 1111 1111.", rationale:"The fictional example includes a payment-card-like number to test sensitive-data detection.", note:"All values shown here are fabricated test strings."},
+      {id:"C-008", title:"Fee statement with clear qualifier", type:"Disclosure", channel:"Email", expected:"pass", baseline:"pass", candidate:"pass", excerpt:"There are no platform fees. Fund expenses and transaction costs may still apply.", rationale:"The expected answer is pass because the example explicitly names the costs that remain.", note:"A clean pass checks that a reviewer does not flag every fee-related sentence."},
+      {id:"C-009", title:"Supported product feature claim", type:"Fact checking", channel:"Website", expected:"pass", baseline:"flag", candidate:"pass", excerpt:"Connect your workspace to 42 supported CRM platforms.", rationale:"For this fictional case, the claim matches the supplied product fact. The baseline raises a false alarm; the candidate passes it.", note:"In a real evaluation, the evidence would point to an approved product source."},
+      {id:"C-010", title:"Plain-language brand description", type:"Brand voice", channel:"Website", expected:"pass", baseline:"pass", candidate:"flag", excerpt:"Simple tools and clear pricing for small teams.", rationale:"Neutral wording is marked acceptable in the sample answer, but the candidate flags it as a brand-voice issue.", note:"The extra flag may signal a rule that is too broad or a need for better context."},
+      {id:"C-011", title:"Internal training note, not an ad", type:"Context", channel:"Internal doc", expected:"pass", baseline:"flag", candidate:"pass", excerpt:"Training example: avoid promising that every customer will double revenue.", rationale:"The sentence warns against a risky claim; it is not itself a customer-facing promise. Baseline flags without respecting context.", note:"Useful edge cases test whether review distinguishes discussion of a claim from making the claim."},
+      {id:"C-012", title:"Disclosure survives all sample placements", type:"Disclosure", channel:"Video + social", expected:"pass", baseline:"pass", candidate:"pass", excerpt:"AI-generated presenter label remains visible in the full video and each sample crop.", rationale:"The expected outcome is pass because the sample disclosure is present in every supplied placement.", note:"A real workflow would retain the reviewed creative and its final placement evidence."}
+    ];
+
+    let activeFilter = "all";
+    let selectedId = "C-002";
+    let reverseSort = false;
+    const $ = (s) => document.querySelector(s);
+    const safe = (s) => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const badge = (result, expected, version) => {
+      const wrong = result !== expected;
+      const className = wrong ? (expected === "flag" ? "miss" : "miss") : (result === "flag" ? "flag" : "pass");
+      const prefix = wrong ? (expected === "flag" ? "Miss · " : "False alarm · ") : "";
+      return `<span class="pill ${className}"><span class="dot"></span>${prefix}${result === "flag" ? "Flag" : "Pass"}</span>`;
+    };
+    const isDisagreement = c => c.baseline !== c.candidate;
+    function filteredCases() {
+      let list = cases.filter(c => {
+        if (activeFilter === "different") return isDisagreement(c);
+        if (activeFilter === "misses") return c.candidate === "pass" && c.expected === "flag";
+        if (activeFilter === "false-alarms") return c.candidate === "flag" && c.expected === "pass";
+        return true;
+      });
+      return reverseSort ? list.reverse() : list;
+    }
+    function renderRows() {
+      const list = filteredCases();
+      $("#caseCount").textContent = `${list.length} ${list.length === 1 ? "case" : "cases"}`;
+      $("#caseRows").innerHTML = list.length ? list.map(c => `<tr data-id="${c.id}" class="${c.id === selectedId ? "selected" : ""}" tabindex="0" aria-label="Inspect ${safe(c.title)}">
+        <td><div class="asset-name">${safe(c.title)}</div><div class="asset-id">${c.id} · ${safe(c.type)}</div></td>
+        <td class="channel">${safe(c.channel)}</td><td class="expected">${c.expected === "flag" ? "Flag" : "Pass"}</td>
+        <td>${badge(c.baseline,c.expected,"baseline")}</td><td>${badge(c.candidate,c.expected,"candidate")}</td></tr>`).join("") : `<tr><td colspan="5" class="empty">No examples match this filter.</td></tr>`;
+      document.querySelectorAll("#caseRows tr[data-id]").forEach(row => {
+        row.addEventListener("click", () => selectCase(row.dataset.id));
+        row.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectCase(row.dataset.id); } });
+      });
+    }
+    function selectCase(id) { selectedId = id; renderRows(); renderDetail(cases.find(c => c.id === id)); }
+    function outcomeText(result, expected) {
+      if (result !== expected) return expected === "flag" ? "Missed risk" : "False alarm";
+      return result === "flag" ? "Flagged as expected" : "Passed as expected";
+    }
+    function renderDetail(c) {
+      const baselineMiss = c.baseline !== c.expected;
+      const candidateMiss = c.candidate !== c.expected;
+      const status = candidateMiss ? (c.expected === "flag" ? "Candidate missed risk" : "Candidate false alarm") : "Candidate matches expected";
+      $("#detailPanel").innerHTML = `<div class="detail-top"><div class="detail-label">Selected example · ${c.id}</div><div class="detail-title">${safe(c.title)}</div><div class="detail-meta">${safe(c.type)} <span style="padding:0 5px">·</span> ${safe(c.channel)}</div></div>
+        <div class="detail-body">
+          <div class="detail-section"><div class="section-label">Sample content</div><div class="quote">“${safe(c.excerpt)}”</div></div>
+          <div class="detail-section"><div class="section-label">Expected human-labeled result</div><span class="pill ${c.expected === "flag" ? "flag" : "pass"}"><span class="dot"></span>${c.expected === "flag" ? "Flag for review" : "Pass"}</span><div class="rationale" style="margin-top:8px">${safe(c.rationale)}</div></div>
+          <div class="detail-section"><div class="section-label">Review version outputs</div><div class="decision-card">
+            <div class="decision"><div class="version">Baseline · v1</div><b style="color:${baselineMiss ? "var(--red)" : "var(--mint)"}">${outcomeText(c.baseline,c.expected)}</b><small>Output: ${c.baseline === "flag" ? "Flag" : "Pass"}</small></div>
+            <div class="decision"><div class="version">Candidate · v2</div><b style="color:${candidateMiss ? "var(--red)" : "var(--mint)"}">${outcomeText(c.candidate,c.expected)}</b><small>Output: ${c.candidate === "flag" ? "Flag" : "Pass"}</small></div>
+          </div><div class="human-note"><strong>What to learn:</strong> ${safe(c.note)}</div></div>
+          <div class="detail-section"><div class="section-label">Evaluation status</div><div class="rationale">${status}. Sample answers are authored for this demonstration and would need qualified review before use as a real benchmark.</div></div>
+        </div><div class="detail-foot"><span>Fixture: synthetic · no customer data</span><span>Human owns final decision</span></div>`;
+    }
+    document.querySelectorAll(".filter").forEach(button => button.addEventListener("click", () => {
+      document.querySelectorAll(".filter").forEach(b => b.classList.remove("active")); button.classList.add("active"); activeFilter = button.dataset.filter; renderRows();
+      const first = filteredCases()[0]; if (first) { selectedId = first.id; renderRows(); renderDetail(first); }
+    }));
+    $("#sortBtn").addEventListener("click", () => { reverseSort = !reverseSort; $("#sortBtn").textContent = reverseSort ? "Sort: Newest first" : "Sort: Most relevant"; renderRows(); });
+    const toast = (message) => { const el = $("#toast"); el.textContent = message; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 2800); };
+    $("#runBtn").addEventListener("click", e => { const button = e.currentTarget; button.disabled = true; button.textContent = "Running sample…"; setTimeout(() => { button.disabled = false; button.innerHTML = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 3.7v8.6c0 .7.8 1.1 1.4.7l7.1-4.3a.8.8 0 0 0 0-1.4L4.4 3C3.8 2.6 3 3 3 3.7Z" fill="currentColor"/></svg>Run comparison'; toast("Sample comparison complete. These are simulated outputs."); }, 700); });
+    $("#exportBtn").addEventListener("click", () => { const payload = {title:"Marketing review sample set", notice:"Synthetic demonstration data. Outputs are illustrative and are not Luthor model results or compliance advice.", cases}; const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = "review-lab-sample-cases.json"; link.click(); URL.revokeObjectURL(link.href); toast("Sample cases exported as JSON."); });
+    $("#historyBtn").addEventListener("click", () => toast("Demo run: synthetic fixtures · baseline v1 vs candidate v2 · human-labeled sample outcomes."));
+    renderRows(); renderDetail(cases.find(c => c.id === selectedId));
+  </script>
+</body>
+</html>
